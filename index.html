@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#D66D91">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="PennyPlan">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>PennyPlan</title>
+<style>
+:root{--accent:#D66D91;--bg:#fff7fa;--card:#fff;--ink:#29232a;--muted:#827780;--line:#f0dfe6;--soft:#f8e8ee}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;padding-bottom:86px}
+header{padding:22px 20px 14px;display:flex;justify-content:space-between;align-items:center}h1{font-size:25px;margin:0;font-weight:800;letter-spacing:-.7px}.sub{color:var(--muted);font-size:12px;margin-top:4px}
+main{max-width:620px;margin:auto;padding:0 16px}.panel{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:17px;margin:10px 0;box-shadow:0 4px 18px #4b1f3510}
+.hero{background:linear-gradient(135deg,var(--accent),color-mix(in srgb,var(--accent),#fff 28%));color:white;border:0}.hero .sub{color:#fff9}.balance{font-size:31px;font-weight:800;margin:7px 0 2px}.row{display:flex;justify-content:space-between;align-items:center;gap:10px}.muted{color:var(--muted)}.small{font-size:12px}.pill{background:var(--soft);color:var(--accent);border-radius:99px;padding:6px 10px;font-size:11px;font-weight:700}
+h2{font-size:16px;margin:2px 0 12px}.wallet{padding:12px 0;border-bottom:1px solid var(--line)}.wallet:last-child{border:0}.wallet strong{font-size:14px}.wallet .amount{font-weight:750}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}.btn{border:0;border-radius:13px;background:var(--accent);color:white;padding:13px 14px;font-weight:700;font-size:14px}.btn.secondary{background:var(--soft);color:var(--accent)}.btn.full{width:100%;margin-top:8px}
+input,select{width:100%;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);font:inherit;margin:5px 0 12px}label{font-size:12px;font-weight:700;color:var(--muted)}
+nav{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--line);display:flex;justify-content:space-around;padding:10px 4px calc(10px + env(safe-area-inset-bottom));z-index:4}
+nav button{background:none;border:0;color:var(--muted);font-size:11px;font-weight:650;padding:4px}nav button.active{color:var(--accent)}
+.view{display:none}.view.active{display:block}.tx{padding:11px 0;border-bottom:1px solid var(--line)}.tx:last-child{border:0}.positive{color:#26865a}.negative{color:#c34f69}
+.swatches{display:flex;gap:9px;flex-wrap:wrap}.swatch{width:34px;height:34px;border-radius:50%;border:3px solid white;box-shadow:0 0 0 1px #ddd}
+.notice{font-size:12px;line-height:1.5;color:var(--muted);background:var(--soft);padding:12px;border-radius:12px}
+</style>
+</head>
+<body>
+<header><div><h1>PennyPlan <span style="color:var(--accent)">✿</span></h1><div class="sub">A little more mindful, every day.</div></div><span class="pill">BETA</span></header>
+<main>
+<section id="home" class="view active">
+ <div class="panel hero"><div class="sub">TOTAL BALANCE · BY CURRENCY</div><div id="totals"></div><div class="sub" style="margin-top:9px">Your wallets, grouped so currencies are never mixed.</div></div>
+ <div class="actions"><button class="btn" onclick="show('transactions')">＋ Add transaction</button><button class="btn secondary" onclick="show('wallets')">＋ Add wallet</button></div>
+ <div class="panel"><div class="row"><h2>My wallets</h2><span class="small muted">Current balances</span></div><div id="homeWallets"></div></div>
+ <div class="panel"><div class="row"><h2>This month</h2><span class="pill" id="monthLabel"></span></div><div class="row"><div><div class="small muted">Income</div><strong class="positive" id="incomeTotal">—</strong></div><div><div class="small muted">Expenses</div><strong class="negative" id="expenseTotal">—</strong></div></div></div>
+</section>
+<section id="wallets" class="view">
+ <div class="panel"><h2>Wallets</h2><div id="walletList"></div></div>
+ <div class="panel"><h2>Create a wallet</h2><label>Wallet name</label><input id="walletName" placeholder="e.g. Travel fund"><label>Wallet type</label><select id="walletType"><option>Cash on hand</option><option>Bank account</option><option>Savings account</option><option>Emergency fund</option><option>Other wallet</option></select><label>Currency</label><select id="walletCurrency"><option>KWD</option><option>USD</option><option>PHP</option><option>EUR</option><option>GBP</option><option>SAR</option><option>AED</option></select><label>Starting balance</label><input id="walletBalance" type="number" step="0.001" placeholder="0"><button class="btn full" onclick="addWallet()">Save wallet</button></div>
+</section>
+<section id="transactions" class="view">
+ <div class="panel"><h2>Add transaction</h2><label>Type</label><select id="txType"><option value="expense">Expense</option><option value="income">Income</option></select><label>Description</label><input id="txDesc" placeholder="e.g. Groceries"><label>Amount</label><input id="txAmount" type="number" min="0.001" step="0.001" placeholder="0.000"><label>Wallet</label><select id="txWallet"></select><label>Date</label><input id="txDate" type="date"><button class="btn full" onclick="addTx()">Save transaction</button></div>
+ <div class="panel"><h2>Recent transactions</h2><div id="txList"></div></div>
+</section>
+<section id="reports" class="view">
+ <div class="panel"><h2>Monthly report</h2><div class="row"><span class="muted">Income</span><strong class="positive" id="reportIncome">—</strong></div><div class="row" style="margin-top:12px"><span class="muted">Expenses</span><strong class="negative" id="reportExpense">—</strong></div><div class="row" style="margin-top:12px"><span class="muted">Net this month</span><strong id="reportNet">—</strong></div></div>
+ <div class="notice">Your month-to-month wallet balances carry forward. This report only totals transactions dated in the current month.</div>
+</section>
+<section id="settings" class="view">
+ <div class="panel"><h2>Theme Studio</h2><label>Choose a preset</label><div class="swatches" style="margin:9px 0 16px"><button class="swatch" style="background:#D66D91" onclick="preset('#D66D91','#fff7fa')"></button><button class="swatch" style="background:#5b967c" onclick="preset('#5b967c','#f3faf6')"></button><button class="swatch" style="background:#9175c5" onclick="preset('#9175c5','#f8f5ff')"></button><button class="swatch" style="background:#438fa7" onclick="preset('#438fa7','#f2fafc')"></button><button class="swatch" style="background:#d88952" onclick="preset('#d88952','#fff8f1')"></button><button class="swatch" style="background:#77708e" onclick="preset('#aaa0d5','#211f2b')"></button></div><label>Accent color</label><input type="color" id="accentPick" value="#D66D91" onchange="setTheme()"><label>Background color</label><input type="color" id="bgPick" value="#fff7fa" onchange="setTheme()"><label>Appearance</label><select id="modePick" onchange="setTheme()"><option value="light">Light</option><option value="dark">Dark</option></select><div class="panel" style="margin:12px 0;background:var(--soft)"><strong>Live preview</strong><div class="small muted">Your PennyPlan theme updates immediately.</div><button class="btn" style="margin-top:10px">Preview button</button></div><button class="btn secondary full" onclick="saveTheme()">Save this theme</button></div>
+ <div class="panel"><h2>PennyPlan Premium</h2><p class="small muted">Free budgeting basics, with optional paid upgrades.</p><div class="row"><strong>Premium monthly</strong><span>$2.99 / month</span></div><div class="row" style="margin-top:12px"><strong>Premium annual</strong><span>$19.99 / year</span></div><div class="row" style="margin-top:12px"><strong>Lifetime access</strong><span>$39.99 once</span></div><div class="notice" style="margin-top:12px">Purchase buttons and real App Store payments are not connected in this test build. These are sample prices only.</div></div>
+ <div class="notice">TEST BUILD: Your entries are saved only in this browser on this iPhone. There is no cloud backup, bank connection, account login, or payment processing yet. Do not enter sensitive banking credentials.</div>
+</section>
+</main>
+<nav><button class="active" onclick="show('home',this)">⌂<br>Home</button><button onclick="show('wallets',this)">▣<br>Wallets</button><button onclick="show('transactions',this)">＋<br>Activity</button><button onclick="show('reports',this)">▥<br>Reports</button><button onclick="show('settings',this)">⚙<br>Settings</button></nav>
+<script>
+const KEY='pennyplan-beta-v1';
+let state=JSON.parse(localStorage.getItem(KEY)||'null')||{wallets:[{id:1,name:'Cash on hand',type:'Cash on hand',currency:'KWD',balance:0},{id:2,name:'Bank account',type:'Bank account',currency:'KWD',balance:0},{id:3,name:'Savings account',type:'Savings account',currency:'KWD',balance:0}],tx:[],theme:{accent:'#D66D91',bg:'#fff7fa',mode:'light'}};
+const $=id=>document.getElementById(id);const money=(n,c)=>new Intl.NumberFormat(undefined,{style:'currency',currency:c,maximumFractionDigits:3}).format(n);
+function persist(){localStorage.setItem(KEY,JSON.stringify(state));render()}
+function show(id,btn){document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));$(id).classList.add('active');document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));if(btn)btn.classList.add('active');else [...document.querySelectorAll('nav button')].find(x=>x.textContent.includes(id==='home'?'Home':id==='wallets'?'Wallets':id==='transactions'?'Activity':id==='reports'?'Reports':'Settings'))?.classList.add('active');render()}
+function addWallet(){let name=$('walletName').value.trim(),balance=Number($('walletBalance').value||0);if(!name)return alert('Please enter a wallet name.');state.wallets.push({id:Date.now(),name,type:$('walletType').value,currency:$('walletCurrency').value,balance});$('walletName').value='';$('walletBalance').value='';persist()}
+function addTx(){let amount=Number($('txAmount').value),w=state.wallets.find(x=>x.id===Number($('txWallet').value));if(!w||!amount||amount<=0)return alert('Choose a wallet and enter an amount greater than zero.');let type=$('txType').value;if(type==='expense'&&amount>w.balance)return alert('This expense is higher than the selected wallet balance.');w.balance+=type==='income'?amount:-amount;state.tx.unshift({id:Date.now(),type,desc:$('txDesc').value.trim()||type,amount,currency:w.currency,wallet:w.name,date:$('txDate').value||new Date().toISOString().slice(0,10)});$('txAmount').value='';$('txDesc').value='';persist()}
+function preset(a,b){$('accentPick').value=a;$('bgPick').value=b;setTheme()}
+function setTheme(){state.theme={accent:$('accentPick').value,bg:$('bgPick').value,mode:$('modePick').value};applyTheme();persistNoRender()}
+function applyTheme(){let t=state.theme;document.documentElement.style.setProperty('--accent',t.accent);document.documentElement.style.setProperty('--bg',t.mode==='dark'?'#211f2b':t.bg);document.documentElement.style.setProperty('--card',t.mode==='dark'?'#302c3b':'#fff');document.documentElement.style.setProperty('--ink',t.mode==='dark'?'#f7f1f8':'#29232a');document.documentElement.style.setProperty('--muted',t.mode==='dark'?'#c0b7c6':'#827780');document.documentElement.style.setProperty('--line',t.mode==='dark'?'#494354':'#f0dfe6');document.documentElement.style.setProperty('--soft',t.mode==='dark'?'#443448':'#f8e8ee');document.querySelector('meta[name="theme-color"]').content=t.accent}
+function persistNoRender(){localStorage.setItem(KEY,JSON.stringify(state))}
+function saveTheme(){persist();alert('Theme saved on this iPhone.')}
+function render(){let currencies=[...new Set(state.wallets.map(w=>w.currency))];$('totals').innerHTML=currencies.length?currencies.map(c=>`<div class="balance">${money(state.wallets.filter(w=>w.currency===c).reduce((s,w)=>s+w.balance,0),c)}</div>`).join(''):'<div class="balance">No wallets yet</div>';
+let walletHtml=state.wallets.map(w=>`<div class="wallet row"><div><strong>${esc(w.name)}</strong><div class="small muted">${esc(w.type)} · ${w.currency}</div></div><div class="amount">${money(w.balance,w.currency)}</div></div>`).join('')||'<p class="muted small">No wallets yet.</p>';$('homeWallets').innerHTML=walletHtml;$('walletList').innerHTML=walletHtml;
+$('txWallet').innerHTML=state.wallets.map(w=>`<option value="${w.id}">${esc(w.name)} (${w.currency})</option>`).join('');
+let now=new Date(),ym=now.toISOString().slice(0,7),month=state.tx.filter(t=>t.date.slice(0,7)===ym),inc=month.filter(t=>t.type==='income'),exp=month.filter(t=>t.type==='expense');let sum=a=>a.reduce((s,t)=>s+t.amount,0);
+let byCur=(arr)=>[...new Set(arr.map(t=>t.currency))].map(c=>money(sum(arr.filter(t=>t.currency===c)),c)).join(' · ')||'—';
+$('monthLabel').textContent=now.toLocaleDateString(undefined,{month:'long',year:'numeric'});$('incomeTotal').textContent=byCur(inc);$('expenseTotal').textContent=byCur(exp);$('reportIncome').textContent=byCur(inc);$('reportExpense').textContent=byCur(exp);$('reportNet').textContent='See totals by currency above';
+$('txList').innerHTML=state.tx.slice(0,30).map(t=>`<div class="tx row"><div><strong>${esc(t.desc)}</strong><div class="small muted">${esc(t.wallet)} · ${t.date}</div></div><strong class="${t.type==='income'?'positive':'negative'}">${t.type==='income'?'+':'−'}${money(t.amount,t.currency)}</strong></div>`).join('')||'<p class="small muted">Your transactions will appear here.</p>';
+}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+$('txDate').value=new Date().toISOString().slice(0,10);$('accentPick').value=state.theme.accent;$('bgPick').value=state.theme.bg;$('modePick').value=state.theme.mode;applyTheme();render();
+if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+</script>
+</body></html>
